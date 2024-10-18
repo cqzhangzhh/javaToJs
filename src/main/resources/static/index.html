@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户登录系统</title>
+    <link rel="stylesheet" href="./css/login.css">
+</head>
+<body>
+    <div class="container">
+        <div id="login-form" class="form-container">
+            <h2>登录</h2>
+            <form id="login">
+                <input type="text" id="login-username" placeholder="用户名" required>
+                <input type="password" id="login-password" placeholder="密码" required>
+                <button type="submit">登录</button>
+            </form>
+            <p>没有账户？<a href="#" onclick="showRegisterForm()">注册</a></p>
+            <p><a href="#" onclick="showResetForm()">忘记密码？</a></p>
+        </div>
+
+        <div id="register-form" class="form-container" style="display:none;">
+            <h2>注册</h2>
+            <form id="register">
+                <input type="text" id="register-username" placeholder="用户名" required>
+                <input type="email" id="register-email" placeholder="电子邮件" required>
+                <input type="password" id="register-password" placeholder="密码" required>
+                <button type="submit">注册</button>
+            </form>
+            <p>已有账户？<a href="#" onclick="showLoginForm()">登录</a></p>
+        </div>
+
+        <div id="reset-form" class="form-container" style="display:none;">
+            <h2>重置密码</h2>
+            <form id="reset">
+                <input type="email" id="reset-email" placeholder="电子邮件" required>
+                <button type="submit">重置密码</button>
+            </form>
+            <p>记得密码了？<a href="#" onclick="showLoginForm()">登录</a></p>
+        </div>
+    </div>
+
+    <script src="./js/login.js"></script>
+</body>
+</html>

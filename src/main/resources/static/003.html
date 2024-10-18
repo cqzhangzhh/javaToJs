@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>题目搜索页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .search-container {
+            margin: 20px;
+        }
+        .result-container {
+            margin: 20px;
+        }
+        .question {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="search-container">
+    <h1>题目搜索</h1>
+    <input type="text" id="searchInput" placeholder="输入题干关键词">
+    <button onclick="searchQuestions()">搜索</button>
+</div>
+<div class="result-container" id="resultContainer"></div>
+
+<script>
+    function searchQuestions() {
+        const query = document.getElementById('searchInput').value;
+        fetch(`/search?query=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(results => displayResults(results))
+            .catch(error => alert('搜索失败，请稍后再试'));
+    }
+
+    function displayResults(results) {
+        const container = document.getElementById('resultContainer');
+        container.innerHTML = '';
+        if (results.length === 0) {
+            container.innerHTML = '<p>没有找到相关题目</p>';
+        } else {
+            results.forEach(question => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.innerHTML = `
+                        <p><strong>大题题干:</strong> ${question.mainQuestionText}</p>
+                        <p><strong>题型:</strong> ${question.questionType || '无'}</p>
+                        <p><strong>小题题干:</strong> ${question.subQuestionText || '无'}</p>
+                        <p><strong>选项A:</strong> ${question.optionA || '无'}</p>
+                        <p><strong>选项B:</strong> ${question.optionB || '无'}</p>
+                        <p><strong>选项C:</strong> ${question.optionC || '无'}</p>
+                        <p><strong>选项D:</strong> ${question.optionD || '无'}</p>
+                        <p><strong>选项E:</strong> ${question.optionE || '无'}</p>
+                        <p><strong>答案:</strong> ${question.answer}</p>
+                        <p><strong>解析:</strong> ${question.explanation || '无'}</p>
+                        <p><strong>章节:</strong> ${question.chapter || '无'}</p>
+                        <p><strong>知识点:</strong> ${question.knowledgePoint || '无'}</p>
+                        <p><strong>分值:</strong> ${question.score}</p>
+                    `;
+                container.appendChild(questionDiv);
+            });
+        }
+    }
+</script>
+</body>
+</html>
