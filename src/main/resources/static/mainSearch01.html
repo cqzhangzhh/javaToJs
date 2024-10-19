@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>搜索页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 80%;
+        }
+        button {
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>搜索页面</h1>
+<input type="text" id="searchInput" placeholder="请输入搜索关键字">
+<button onclick="search()">搜索</button>
+
+<table id="resultsTable">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>名称</th>
+            <th>描述</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody id="resultsBody">
+        <!-- 搜索结果将显示在这里 -->
+    </tbody>
+</table>
+
+<script>
+    let data = [
+        { id: 1, name: "产品A", description: "这是产品A的描述" },
+        { id: 2, name: "产品B", description: "这是产品B的描述" },
+        { id: 3, name: "产品C", description: "这是产品C的描述" },
+        { id: 4, name: "产品D", description: "这是产品D的描述" },
+        // 你可以添加更多的数据
+    ];
+
+    function search() {
+        const input = document.getElementById('searchInput').value;
+        const resultsBody = document.getElementById('resultsBody');
+        resultsBody.innerHTML = ''; // 清空结果表格
+
+        const filteredData = data.filter(item => item.name.includes(input) || item.description.includes(input));
+
+        if (filteredData.length === 0) {
+            resultsBody.innerHTML = '<tr><td colspan="4">未找到结果</td></tr>';
+            return;
+        }
+
+        filteredData.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.id}</td>
+                <td>${item.name}</td>
+                <td>${item.description}</td>
+                <td><button onclick="edit(${item.id})">修改</button></td>
+            `;
+            resultsBody.appendChild(row);
+        });
+    }
+
+    function edit(id) {
+        const item = data.find(item => item.id === id);
+        if (item) {
+            const newName = prompt("修改名称:", item.name);
+            const newDescription = prompt("修改描述:", item.description);
+            if (newName !== null && newDescription !== null) {
+                item.name = newName;
+                item.description = newDescription;
+                alert("修改成功!");
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
