@@ -1,72 +1,178 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>题目搜索页面</title>
+    <title>搜索页面</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-        }
-        .search-container {
             margin: 20px;
         }
-        .result-container {
-            margin: 20px;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
-        .question {
-            border: 1px solid #ccc;
+        th, td {
             padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 70%;
+            margin-right: 10px;
+        }
+        button {
+            padding: 10px;
         }
     </style>
 </head>
 <body>
-<div class="search-container">
-    <h1>题目搜索</h1>
-    <input type="text" id="searchInput" placeholder="输入题干关键词">
-    <button onclick="searchQuestions()">搜索</button>
-</div>
-<div class="result-container" id="resultContainer"></div>
+
+<h1>搜索页面</h1>
+<input type="text" id="searchInput1" placeholder="请输入搜索关键字1">
+<input type="text" id="searchInput2" placeholder="请输入搜索关键字2">
+<button onclick="search()">搜索</button>
+
+<table id="resultsTable">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>名称</th>
+            <th>描述</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody id="resultsBody">
+        <!-- 搜索结果将显示在这里 -->
+    </tbody>
+</table>
 
 <script>
-    function searchQuestions() {
-        const query = document.getElementById('searchInput').value;
-        fetch(`/search?query=${encodeURIComponent(query)}`)
-            .then(response => response.json())
-            .then(results => displayResults(results))
-            .catch(error => alert('搜索失败，请稍后再试'));
+    // 封装类 ApiResponse
+    class ApiResponse {
+        constructor(response) {
+            this.returnCode = response.returnCode;
+            this.resultData = response.resultData;
+        }
+
+        getReturnCode() {
+            return this.returnCode;
+        }
+
+        getResultData() {
+            return this.resultData;
+        }
     }
 
-    function displayResults(results) {
-        const container = document.getElementById('resultContainer');
-        container.innerHTML = '';
-        if (results.length === 0) {
-            container.innerHTML = '<p>没有找到相关题目</p>';
+    // 封装类 FetchResult
+    class FetchResult {
+        constructor(response) {
+            this.apiResponse = new ApiResponse(response);
+            this.success = this.apiResponse.getReturnCode() === 200;
+        }
+
+        isSuccess() {
+            return this.success;
+        }
+
+        getReturnCode() {
+            return this.apiResponse.getReturnCode();
+        }
+
+        getResultData() {
+            return this.apiResponse.getResultData();
+        }
+    }
+
+// 封装的函数，用于访问后台接口
+function fetchData(formData, endpoint) {
+    const queryString = Array.from(formData.entries()).map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join('&');// 去掉方括号
+    return fetch(`${endpoint}?${queryString}`)
+    // return fetch(`${endpoint}?${formData}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('网络响应有问题');
+            }
+            return response.json(); // 返回解析后的 JSON 数据
+        })
+        .then(responseData => new FetchResult(responseData)); // 返回 FetchResult 实例
+}
+
+    function search() {
+
+        const input1 = document.getElementById('searchInput1').value;
+        const input2 = document.getElementById('searchInput2').value;
+        const resultsBody = document.getElementById('resultsBody');
+        resultsBody.innerHTML = ''; // 清空结果表格
+
+        const formData1 = new FormData();
+        formData1.append('username', 'John');
+        formData1.append('email', 'john@example.com');
+
+
+        let formData = new FormData();
+        formData.append('name', 'John');
+        formData.append('gender', '1');
+        const queries = [input1, input2].filter(query => query); // 过滤掉空的条件
+
+        // 计算 FormData 的条目数量
+        let count = 0;
+        for (let [key, value] of formData.entries()) {
+            count++;
+        }
+
+        // 调用封装的 fetchData 函数
+        if (count > 0) {
+            let results = fetchData(formData, '/search')
+            console.log(results);
+                // .then(response => response.json())
+                // .then(fetchResult => {
+                //     if (!fetchResult.isSuccess()) {
+                //         resultsBody.innerHTML = '<tr><td colspan="4">搜索失败，错误代码: ' + fetchResult.getReturnCode() + '</td></tr>';
+                //         return;
+                //     }
+
+                //     const data = fetchResult.getResultData();
+                //     if (data.length === 0) {
+                //         resultsBody.innerHTML = '<tr><td colspan="4">未找到结果</td></tr>';
+                //         return;
+                //     }
+
+                //     data.forEach(item => {
+                //         const row = document.createElement('tr');
+                //         row.innerHTML = `
+                //             <td>${item.id}</td>
+                //             <td>${item.name}</td>
+                //             <td>${item.description}</td>
+                //             <td><button onclick="edit(${item.id})">修改</button></td>
+                //         `;
+                //         resultsBody.appendChild(row);
+                //     });
+                // })
+                // .catch(error => {
+                //     console.error('发生错误:', error);
+                //     resultsBody.innerHTML = '<tr><td colspan="4">搜索过程中出现错误</td></tr>';
+                // });
         } else {
-            results.forEach(question => {
-                const questionDiv = document.createElement('div');
-                questionDiv.className = 'question';
-                questionDiv.innerHTML = `
-                        <p><strong>大题题干:</strong> ${question.mainQuestionText}</p>
-                        <p><strong>题型:</strong> ${question.questionType || '无'}</p>
-                        <p><strong>小题题干:</strong> ${question.subQuestionText || '无'}</p>
-                        <p><strong>选项A:</strong> ${question.optionA || '无'}</p>
-                        <p><strong>选项B:</strong> ${question.optionB || '无'}</p>
-                        <p><strong>选项C:</strong> ${question.optionC || '无'}</p>
-                        <p><strong>选项D:</strong> ${question.optionD || '无'}</p>
-                        <p><strong>选项E:</strong> ${question.optionE || '无'}</p>
-                        <p><strong>答案:</strong> ${question.answer}</p>
-                        <p><strong>解析:</strong> ${question.explanation || '无'}</p>
-                        <p><strong>章节:</strong> ${question.chapter || '无'}</p>
-                        <p><strong>知识点:</strong> ${question.knowledgePoint || '无'}</p>
-                        <p><strong>分值:</strong> ${question.score}</p>
-                    `;
-                container.appendChild(questionDiv);
-            });
+            alert('请至少输入一个搜索条件');
+        }
+    }
+
+    function edit(id) {
+        const newName = prompt("修改名称:");
+        const newDescription = prompt("修改描述:");
+        if (newName !== null && newDescription !== null) {
+            alert(`ID: ${id}, 新名称: ${newName}, 新描述: ${newDescription}`);
+            // 这里可以添加调用修改接口的逻辑
         }
     }
 </script>
+
 </body>
 </html>
