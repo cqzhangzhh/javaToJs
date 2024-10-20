@@ -32,7 +32,7 @@ document.getElementById('login').addEventListener('submit', function(e) {
     }).then(response => {
         if (response.ok) {
             alert('登录成功');
-            window.location.href = '/003.html';
+            window.location.href = '../html/questions.html';
         } else {
             alert('登录失败');
         }
